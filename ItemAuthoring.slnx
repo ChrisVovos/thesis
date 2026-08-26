@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ItemAuthoring.Api/ItemAuthoring.Api.csproj" />
+    <Project Path="src/ItemAuthoring.Application/ItemAuthoring.Application.csproj" />
+    <Project Path="src/ItemAuthoring.Domain/ItemAuthoring.Domain.csproj" />
+    <Project Path="src/ItemAuthoring.Infrastructure/ItemAuthoring.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ItemAuthoring.Application.Tests/ItemAuthoring.Application.Tests.csproj" />
+    <Project Path="tests/ItemAuthoring.Domain.Tests/ItemAuthoring.Domain.Tests.csproj" />
+    <Project Path="tests/ItemAuthoring.Integration.Tests/ItemAuthoring.Integration.Tests.csproj" />
+  </Folder>
+</Solution>

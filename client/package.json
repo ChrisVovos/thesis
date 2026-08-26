@@ -1,0 +1,74 @@
+{
+  "name": "item-authoring-client",
+  "version": "1.0.0",
+  "description": "The Angular client of the item authoring platform. One feature set, two transports.",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "build": "ng build --configuration production",
+    "watch": "ng build --watch --configuration development",
+    "test": "jest --watch",
+    "test:ci": "jest --ci --runInBand --coverage",
+    "lint": "ng lint",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps chromium",
+    "codegen": "npm run codegen:rest && npm run codegen:graphql",
+    "codegen:rest": "openapi-typescript ../artifacts/openapi.json -o src/app/data-access/rest/generated/openapi-schema.ts",
+    "codegen:graphql": "graphql-codegen --config codegen.ts"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^20.3.29",
+    "@angular/cdk": "^20.2.14",
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "@angular/material": "^20.2.14",
+    "@angular/platform-browser": "^20.3.0",
+    "@angular/router": "^20.3.0",
+    "@apollo/client": "^3.14.1",
+    "graphql": "^16.14.2",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.34",
+    "@angular/cli": "^20.3.34",
+    "@angular/compiler-cli": "^20.3.0",
+    "@axe-core/playwright": "^4.13.0",
+    "@graphql-codegen/cli": "^7.3.1",
+    "@graphql-codegen/typed-document-node": "^7.1.0",
+    "@graphql-codegen/typescript": "^6.1.0",
+    "@graphql-codegen/typescript-operations": "^6.1.6",
+    "@playwright/test": "^1.62.1",
+    "@testing-library/angular": "^18.1.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/jest": "^30.0.0",
+    "angular-eslint": "20.7.0",
+    "apollo-angular": "^11.0.0",
+    "eslint": "^9.39.1",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "jest-preset-angular": "^17.0.0",
+    "jsdom": "^26.1.0",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.46.4"
+  }
+}

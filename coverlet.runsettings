@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Coverage settings shared by every backend test run.
+
+  Generated code is excluded: Entity Framework Core writes the migrations and the model snapshot, and
+  measuring them would report a number about the scaffolder rather than about the code under review.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/Migrations/*.cs,**/*.Designer.cs,**/*ModelSnapshot.cs</ExcludeByFile>
+          <Exclude>[ItemAuthoring.Api]*Program*</Exclude>
+          <SkipAutoProps>true</SkipAutoProps>
+          <UseSourceLink>false</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

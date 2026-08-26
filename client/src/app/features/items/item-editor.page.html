@@ -1,0 +1,155 @@
+<header class="page-header">
+  <h1>{{ id() ? 'Edit item' : 'New item' }}</h1>
+</header>
+
+<app-load-state [loading]="existing.isLoading() || categories.isLoading()" />
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-card>
+    <mat-card-header><mat-card-title>Details</mat-card-title></mat-card-header>
+    <mat-card-content class="grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Answer shape</mat-label>
+        <mat-select formControlName="type" data-testid="item-type" [disabled]="!!id()">
+          @for (type of itemTypes; track type) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Difficulty</mat-label>
+        <mat-select formControlName="difficulty" data-testid="item-difficulty">
+          @for (difficulty of difficulties; track difficulty) {
+            <mat-option [value]="difficulty">{{ difficulty }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="categoryId" data-testid="item-category">
+          @for (category of categories.value() ?? []; track category.id) {
+            <mat-option [value]="category.id" [disabled]="!category.isActive">
+              {{ category.name }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (form.controls.categoryId.touched && form.controls.categoryId.invalid) {
+          <mat-error>A category is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Maximum score</mat-label>
+        <input matInput type="number" step="0.01" min="0.01" formControlName="maximumScore" data-testid="item-score" />
+        @if (form.controls.maximumScore.touched && form.controls.maximumScore.invalid) {
+          <mat-error>The score must be greater than zero.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Stem</mat-label>
+        <textarea matInput rows="4" formControlName="stem" data-testid="item-stem"></textarea>
+        @if (form.controls.stem.touched && form.controls.stem.invalid) {
+          <mat-error>A stem is required and must not exceed 4000 characters.</mat-error>
+        }
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  @if (usesOptions()) {
+    <mat-card class="options-card">
+      <mat-card-header>
+        <mat-card-title>Answer options</mat-card-title>
+        <mat-card-subtitle>
+          {{ allowsMultipleCorrect() ? 'Mark two or more options as correct.' : 'Mark exactly one option as correct.' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div formArrayName="options" class="options">
+          @for (row of optionRows.controls; track $index; let index = $index) {
+            <div class="option-row" [formGroupName]="index">
+              <mat-checkbox
+                [checked]="row.controls['isCorrect'].value"
+                (change)="setCorrect(index, $event.checked)"
+                [attr.data-testid]="'option-correct-' + index"
+                [attr.aria-label]="'Option ' + (index + 1) + ' is correct'"
+              />
+
+              <mat-form-field appearance="outline" class="option-text">
+                <mat-label>Option {{ index + 1 }}</mat-label>
+                <input matInput formControlName="text" [attr.data-testid]="'option-text-' + index" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="option-feedback">
+                <mat-label>Feedback (optional)</mat-label>
+                <input matInput formControlName="feedback" />
+              </mat-form-field>
+
+              @if (!hasFixedOptions()) {
+                <button
+                  matIconButton
+                  type="button"
+                  (click)="removeOption(index)"
+                  [attr.aria-label]="'Remove option ' + (index + 1)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (!hasFixedOptions()) {
+          <button matButton="outlined" type="button" (click)="addOption()" data-testid="add-option">
+            <mat-icon>add</mat-icon>
+            Add option
+          </button>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (usesRubric()) {
+    <mat-card>
+      <mat-card-header><mat-card-title>Grading rubric</mat-card-title></mat-card-header>
+      <mat-card-content class="grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Guidance</mat-label>
+          <textarea matInput rows="4" formControlName="rubricGuidance" data-testid="rubric-guidance"></textarea>
+          @if (form.controls.rubricGuidance.touched && form.controls.rubricGuidance.invalid) {
+            <mat-error>Grading guidance is required for an essay item.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Minimum words</mat-label>
+          <input matInput type="number" min="0" formControlName="rubricMinimumWords" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Maximum words</mat-label>
+          <input matInput type="number" min="1" formControlName="rubricMaximumWords" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sample answer (optional)</mat-label>
+          <textarea matInput rows="4" formControlName="sampleAnswer"></textarea>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (formErrors) {
+    <p class="form-error" role="alert" data-testid="item-form-error">{{ formErrorMessage() }}</p>
+  }
+
+  <div class="actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="submit" [disabled]="saving()" data-testid="save-item">
+      Save item
+    </button>
+  </div>
+</form>

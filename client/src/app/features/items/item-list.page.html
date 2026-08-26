@@ -1,0 +1,224 @@
+<header class="page-header">
+  <div>
+    <h1>Item bank</h1>
+    <p class="subtitle">{{ totalCount() }} items match the current filters.</p>
+  </div>
+
+  @if (canCreate()) {
+    <a matButton="filled" routerLink="/items/new" data-testid="create-item">
+      <mat-icon>add</mat-icon>
+      New item
+    </a>
+  }
+</header>
+
+<mat-card class="filters">
+  <mat-card-content>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Search</mat-label>
+      <input
+        matInput
+        type="search"
+        data-testid="item-search"
+        [ngModel]="criteria().search ?? ''"
+        (ngModelChange)="search($event)"
+        placeholder="Stem or category"
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Type</mat-label>
+      <mat-select
+        multiple
+        data-testid="filter-type"
+        [ngModel]="criteria().types ?? []"
+        (ngModelChange)="filterTypes($event)"
+      >
+        @for (type of itemTypes; track type) {
+          <mat-option [value]="type">{{ type }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Status</mat-label>
+      <mat-select
+        multiple
+        data-testid="filter-status"
+        [ngModel]="criteria().statuses ?? []"
+        (ngModelChange)="filterStatuses($event)"
+      >
+        @for (status of itemStatuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Difficulty</mat-label>
+      <mat-select
+        multiple
+        data-testid="filter-difficulty"
+        [ngModel]="criteria().difficulties ?? []"
+        (ngModelChange)="filterDifficulties($event)"
+      >
+        @for (difficulty of difficulties; track difficulty) {
+          <mat-option [value]="difficulty">{{ difficulty }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Category</mat-label>
+      <mat-select
+        data-testid="filter-category"
+        [ngModel]="criteria().categoryId ?? null"
+        (ngModelChange)="filterCategory($event)"
+      >
+        <mat-option [value]="null">All categories</mat-option>
+        @for (category of categories.value() ?? []; track category.id) {
+          <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </mat-card-content>
+</mat-card>
+
+<app-load-state
+  [loading]="page.isLoading()"
+  [error]="failure()"
+  [empty]="!page.isLoading() && !failure() && rows().length === 0"
+  emptyMessage="No items match the current filters."
+  (retry)="reload()"
+/>
+
+@if (rows().length > 0) {
+  <mat-card class="results">
+    <table mat-table [dataSource]="rows()" data-testid="item-table">
+      <ng-container matColumnDef="stem">
+        <th mat-header-cell *matHeaderCellDef>
+          <button matButton type="button" (click)="sortBy('stem')">Stem</button>
+        </th>
+        <td mat-cell *matCellDef="let item">
+          <a [routerLink]="['/items', item.id]" class="stem-link">{{ item.stem }}</a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>
+          <button matButton type="button" (click)="sortBy('type')">Type</button>
+        </th>
+        <td mat-cell *matCellDef="let item"><app-status-chip [value]="item.type" /></td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>
+          <button matButton type="button" (click)="sortBy('status')">Status</button>
+        </th>
+        <td mat-cell *matCellDef="let item"><app-status-chip [value]="item.status" /></td>
+      </ng-container>
+
+      <ng-container matColumnDef="difficulty">
+        <th mat-header-cell *matHeaderCellDef>
+          <button matButton type="button" (click)="sortBy('difficulty')">Difficulty</button>
+        </th>
+        <td mat-cell *matCellDef="let item"><app-status-chip [value]="item.difficulty" /></td>
+      </ng-container>
+
+      <ng-container matColumnDef="category">
+        <th mat-header-cell *matHeaderCellDef>
+          <button matButton type="button" (click)="sortBy('category')">Category</button>
+        </th>
+        <td mat-cell *matCellDef="let item">{{ item.categoryName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="score">
+        <th mat-header-cell *matHeaderCellDef>
+          <button matButton type="button" (click)="sortBy('score')">Score</button>
+        </th>
+        <td mat-cell *matCellDef="let item">{{ item.maximumScore }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let item">
+          <button
+            matIconButton
+            type="button"
+            [matMenuTriggerFor]="rowMenu"
+            [attr.aria-label]="'Actions for ' + item.stem"
+            [attr.data-testid]="'item-actions-' + item.id"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #rowMenu="matMenu">
+            <a mat-menu-item [routerLink]="['/items', item.id]">
+              <mat-icon>visibility</mat-icon>
+              <span>Preview</span>
+            </a>
+
+            @if (canUpdate() && item.status === 'Draft') {
+              <a mat-menu-item [routerLink]="['/items', item.id, 'edit']">
+                <mat-icon>edit</mat-icon>
+                <span>Edit</span>
+              </a>
+            }
+
+            @if (canSubmit() && item.status === 'Draft') {
+              <button mat-menu-item type="button" (click)="transition(item, 'submit')">
+                <mat-icon>send</mat-icon>
+                <span>Submit for review</span>
+              </button>
+            }
+
+            @if (canReview() && item.status === 'InReview') {
+              <button mat-menu-item type="button" (click)="transition(item, 'approve')">
+                <mat-icon>check</mat-icon>
+                <span>Approve</span>
+              </button>
+              <button mat-menu-item type="button" (click)="transition(item, 'returnToDraft')">
+                <mat-icon>undo</mat-icon>
+                <span>Return to author</span>
+              </button>
+            }
+
+            @if (canPublish() && item.status === 'Approved') {
+              <button mat-menu-item type="button" (click)="transition(item, 'publish')">
+                <mat-icon>publish</mat-icon>
+                <span>Publish</span>
+              </button>
+            }
+
+            @if (canPublish() && item.status === 'Published') {
+              <button mat-menu-item type="button" (click)="transition(item, 'retire')">
+                <mat-icon>archive</mat-icon>
+                <span>Retire</span>
+              </button>
+            }
+
+            @if (canDelete() && item.status !== 'Published') {
+              <button mat-menu-item type="button" (click)="remove(item)">
+                <mat-icon>delete</mat-icon>
+                <span>Delete</span>
+              </button>
+            }
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount()"
+      [pageIndex]="criteria().page - 1"
+      [pageSize]="criteria().pageSize"
+      [pageSizeOptions]="pageSizes"
+      (page)="changePage($event)"
+      aria-label="Select a page of items"
+    />
+  </mat-card>
+}

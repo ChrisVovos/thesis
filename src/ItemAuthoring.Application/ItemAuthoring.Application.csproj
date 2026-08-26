@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ItemAuthoring.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ItemAuthoring.Domain\ItemAuthoring.Domain.csproj" />
+  </ItemGroup>
+
+  <!--
+    Handlers and pipeline behaviours are internal: they are implementation details reached through
+    ISender, and nothing outside this assembly should depend on them by name. The unit test project is
+    the one exception, because a behaviour is worth testing in isolation from the pipeline.
+  -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="ItemAuthoring.Application.Tests" />
+  </ItemGroup>
+
+</Project>

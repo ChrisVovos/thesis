@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ItemAuthoring.Domain</RootNamespace>
+    <!--
+      The domain layer intentionally has zero package references. Any dependency added here would
+      violate the dependency rule of Clean Architecture.
+    -->
+  </PropertyGroup>
+
+</Project>

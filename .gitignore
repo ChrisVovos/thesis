@@ -1,0 +1,40 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+artifacts/
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.cobertura.xml
+
+# Secrets / local configuration
+appsettings.Local.json
+*.env
+.env
+.env.*
+!.env.example
+
+# Node / Angular
+node_modules/
+client/dist/
+client/.angular/
+client/coverage/
+client/playwright-report/
+client/test-results/
+client/blob-report/
+client/.playwright/
+
+# Editors
+.vs/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Benchmarks output
+benchmarks/results/

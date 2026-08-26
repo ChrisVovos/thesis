@@ -1,0 +1,191 @@
+<app-load-state [loading]="exam.isLoading()" [error]="failure()" (retry)="exam.reload()" />
+
+@if (exam.value(); as detail) {
+  <header class="page-header">
+    <div>
+      <h1>{{ detail.summary.title }}</h1>
+      <div class="chips">
+        <app-status-chip [value]="detail.summary.status" />
+        <span class="meta">
+          {{ detail.summary.itemCount }} items · {{ detail.summary.totalScore }} points · pass at
+          {{ detail.summary.passingScorePercentage }}%
+        </span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a matButton="outlined" routerLink="/exams">
+        <mat-icon>arrow_back</mat-icon>
+        All exams
+      </a>
+
+      @if (canPublish() && isDraft()) {
+        <button
+          matButton="filled"
+          type="button"
+          data-testid="publish-exam"
+          [disabled]="violations().length > 0"
+          (click)="transition('publish')"
+        >
+          Publish
+        </button>
+      }
+
+      @if (canPublish() && detail.summary.status === 'Published') {
+        <button matButton="outlined" type="button" (click)="transition('archive')">Archive</button>
+      }
+
+      @if (canPublish() && detail.summary.status !== 'Draft') {
+        <button matButton type="button" (click)="transition('returnToDraft')">
+          Return to draft
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (violations().length > 0) {
+    <mat-card class="violations" role="status" data-testid="composition-violations">
+      <mat-card-content>
+        <h2>Not ready to publish</h2>
+        <ul>
+          @for (violation of violations(); track violation) {
+            <li>{{ violation }}</li>
+          }
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <div class="builder">
+    <section class="sections">
+      @if (canEdit() && isDraft()) {
+        <mat-card class="add-section">
+          <mat-card-content>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>New section title</mat-label>
+              <input
+                matInput
+                data-testid="new-section-title"
+                [ngModel]="newSectionTitle()"
+                (ngModelChange)="newSectionTitle.set($event)"
+              />
+            </mat-form-field>
+            <button matButton="filled" type="button" (click)="addSection()" data-testid="add-section">
+              <mat-icon>add</mat-icon>
+              Add section
+            </button>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @for (section of detail.sections; track section.id) {
+        <mat-card class="section">
+          <mat-card-header>
+            <mat-card-title>{{ section.title }}</mat-card-title>
+            <mat-card-subtitle>{{ section.items.length }} items</mat-card-subtitle>
+            @if (canEdit() && isDraft()) {
+              <button
+                matIconButton
+                type="button"
+                [attr.aria-label]="'Remove section ' + section.title"
+                (click)="removeSection(section.id)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </mat-card-header>
+
+          <mat-card-content>
+            @if (section.instructions) {
+              <p class="instructions">{{ section.instructions }}</p>
+            }
+
+            @if (section.items.length === 0) {
+              <p class="muted">No items placed yet.</p>
+            } @else {
+              <div
+                cdkDropList
+                [cdkDropListData]="section.items"
+                [cdkDropListDisabled]="!canEdit() || !isDraft()"
+                (cdkDropListDropped)="reorder(section.id, $event)"
+                class="placements"
+                [attr.data-testid]="'section-items-' + section.id"
+              >
+                @for (placement of section.items; track placement.id) {
+                  <div cdkDrag class="placement">
+                    <mat-icon cdkDragHandle aria-hidden="true" class="handle">drag_indicator</mat-icon>
+                    <div class="placement-body">
+                      <span class="stem">{{ placement.item?.stem ?? placement.itemId }}</span>
+                      <small>
+                        {{ placement.item?.categoryName }} · {{ placement.effectiveScore }} points
+                      </small>
+                    </div>
+                    @if (canEdit() && isDraft()) {
+                      <button
+                        matIconButton
+                        type="button"
+                        [attr.aria-label]="'Remove item from ' + section.title"
+                        (click)="removeItem(section.id, placement.id)"
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+
+    @if (canEdit() && isDraft()) {
+      <aside class="picker">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Published items</mat-card-title>
+            <mat-card-subtitle>Only published items may be placed.</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
+              <mat-label>Search the bank</mat-label>
+              <input
+                matInput
+                type="search"
+                data-testid="picker-search"
+                [ngModel]="itemSearch()"
+                (ngModelChange)="itemSearch.set($event)"
+              />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-list>
+              @for (candidate of available.value()?.items ?? []; track candidate.id) {
+                <mat-list-item>
+                  <span matListItemTitle>{{ candidate.stem }}</span>
+                  <span matListItemLine>
+                    {{ candidate.categoryName }} · {{ candidate.maximumScore }} points
+                  </span>
+                  <span matListItemMeta>
+                    @if (detail.sections.length > 0) {
+                      <button
+                        matIconButton
+                        type="button"
+                        [attr.aria-label]="'Add ' + candidate.stem + ' to the first section'"
+                        [attr.data-testid]="'add-item-' + candidate.id"
+                        (click)="addItem(detail.sections[0].id, candidate.id)"
+                      >
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    }
+                  </span>
+                </mat-list-item>
+              }
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
+      </aside>
+    }
+  </div>
+}

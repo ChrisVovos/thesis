@@ -1,0 +1,13 @@
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+**/coverage
+**/TestResults
+artifacts
+client
+tests
+.git
+.vs
+*.md

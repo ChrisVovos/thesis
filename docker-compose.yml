@@ -1,0 +1,62 @@
+# The full stack for local evaluation and for the benchmark runs.
+#
+# Every secret is supplied through the environment; nothing sensitive is committed. Copy
+# `.env.example` to `.env`, fill it in, and run `docker compose up --build`.
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+      MSSQL_PID: Developer
+    ports:
+      - '1433:1433'
+    volumes:
+      - database-data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: src/ItemAuthoring.Api/Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${API_ENVIRONMENT:-Benchmark}
+      ConnectionStrings__ItemAuthoringDatabase: >-
+        Server=database,1433;Database=ItemAuthoring;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Encrypt=True
+      Jwt__Issuer: https://itemauthoring.local
+      Jwt__Audience: itemauthoring.client
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY in .env}
+      Seed__Enabled: 'true'
+      Seed__ApplyMigrations: 'true'
+      Seed__AdministratorEmail: ${SEED_ADMIN_EMAIL:-administrator@itemauthoring.local}
+      Seed__AdministratorPassword: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD in .env}
+      Seed__IncludeSampleContent: 'true'
+      Seed__SampleItemCount: ${SEED_SAMPLE_ITEMS:-2000}
+      Cors__AllowedOrigins__0: http://localhost:8080
+    ports:
+      - '5080:8080'
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - '8080:8080'
+
+volumes:
+  database-data:

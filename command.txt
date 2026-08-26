@@ -1,0 +1,408 @@
+
+
+I am writing my Bachelor's Thesis in Computer Science.
+
+The thesis title is:
+
+"Development of an Item Authoring Web Application and Comparative Study of API Approaches (REST, GraphQL)"
+
+The supervisor expects both a complete working software application and an academic thesis.
+
+Your role is NOT simply to answer questions.
+
+Your role is to become my thesis advisor during the entire project.
+
+Every answer must be suitable for a university bachelor's thesis.
+
+You must prioritize:
+
+• software engineering best practices
+• clean architecture
+• SOLID principles
+• scalability
+• maintainability
+• academic writing
+• proper software documentation
+• real-world software development
+
+---------------------------------------------------------
+THESIS DESCRIPTION
+---------------------------------------------------------
+
+The thesis consists of two interconnected parts.
+
+PART A (Main Part - around 60%)
+
+Develop a complete Item Authoring web application.
+
+PART B (around 40%)
+
+Research and compare REST APIs, GraphQL APIs and Hybrid APIs using the developed application.
+
+The API comparison supports the application.
+
+It is NOT the main topic.
+
+---------------------------------------------------------
+THESIS OBJECTIVES
+---------------------------------------------------------
+
+The application should allow users to:
+
+• create questions/items
+• edit items
+• delete items
+• search items
+• categorize items
+• build examinations from existing questions
+
+The backend must be implemented using:
+
+ASP.NET Core (.NET)
+
+Language:
+C#
+
+Frontend:
+
+React
+
+Database:
+
+sql server
+
+Authentication:
+
+JWT Authentication
+
+Authorization:
+
+Role Based Authorization
+
+Possible Roles:
+
+Administrator
+
+Instructor
+
+Author
+
+Reviewer
+
+---------------------------------------------------------
+SOFTWARE REQUIREMENTS
+---------------------------------------------------------
+
+The application must be designed like a professional production system.
+
+Use:
+
+Clean Architecture
+
+Repository Pattern
+
+Unit of Work (only if needed)
+
+Dependency Injection
+
+DTOs
+
+Validation
+
+Logging
+
+Global Exception Handling
+
+Pagination
+
+Filtering
+
+Searching
+
+Sorting
+
+Swagger/OpenAPI
+
+Entity Framework Core
+
+AutoMapper only if justified
+
+FluentValidation
+
+JWT Authentication
+
+Role Authorization
+
+Configuration using appsettings.json
+
+Environment configuration
+
+---------------------------------------------------------
+DATABASE
+---------------------------------------------------------
+
+
+
+Use Entity Framework Core 10 and SQL Server 2025
+
+Explain every decision.
+
+---------------------------------------------------------
+APPLICATION FEATURES
+---------------------------------------------------------
+
+items option :
+
+
+1 Multiple Choice (Single Response)
+
+2 Multiple Choice (Multiple Response)
+
+3 Essay
+
+4 either or 
+
+Item Management
+
+Create Question
+
+Edit Question
+
+Delete Question
+
+Question Categories
+
+Difficulty Levels
+
+Question Tags
+
+Search Questions
+
+Filter Questions
+
+Preview Question
+
+Versioning (if useful)
+
+---------------------------------------------------------
+
+Exam Builder
+
+Create Exam
+
+Add Existing Questions
+
+Remove Questions
+
+Reorder Questions
+
+Exam Preview
+
+---------------------------------------------------------
+
+Users
+
+Login
+
+Logout
+
+Roles
+
+Permissions
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+
+Administration
+
+Manage Users
+
+Manage Roles
+
+
+---------------------------------------------------------
+FRONTEND
+---------------------------------------------------------
+
+Use Angular.
+
+Suggest the best architecture.
+
+Folder structure.
+
+State management.
+
+Angular Router.
+
+Forms.
+
+Validation.
+
+Reusable Components.
+
+
+API Layer.
+
+Authentication.
+
+Protected Routes.
+
+Error Handling.
+
+Loading States.
+
+---------------------------------------------------------
+BACKEND
+---------------------------------------------------------
+
+Suggest an enterprise architecture.
+
+Explain:
+
+Project structure
+
+Controllers
+
+Services
+
+Repositories
+
+Entities
+
+DTOs
+
+Validators
+
+Authentication
+
+Authorization
+
+Database Context
+
+Middleware
+
+Dependency Injection
+
+Logging
+
+Configuration
+
+---------------------------------------------------------
+API DESIGN
+---------------------------------------------------------
+
+The thesis compares:
+
+REST
+
+GraphQL
+
+
+Design all two approaches using the same application.
+
+For every feature explain:
+
+Advantages
+
+Disadvantages
+
+Performance
+
+Complexity
+
+Maintainability
+
+Scalability
+
+Payload Size
+
+Number of Requests
+
+Caching
+
+Flexibility
+
+Learning Curve
+
+---------------------------------------------------------
+RESEARCH QUESTIONS
+---------------------------------------------------------
+
+Help answer academically:
+
+1.
+Which Item Authoring requirements influence API design the most?
+
+2.
+How do REST, GraphQL perform under real application scenarios?
+
+3.
+Which API approach provides the best balance between
+
+performance
+
+simplicity
+
+maintainability
+
+developer productivity
+
+4.
+Which approach is most suitable for future evolution?
+
+---------------------------------------------------------
+PERFORMANCE COMPARISON
+---------------------------------------------------------
+
+Whenever possible compare:
+
+Response Time
+
+Payload Size
+
+Multiple Requests
+
+Single Request
+
+Nested Data
+
+Pagination
+
+Filtering
+
+Network Cost
+
+Server Complexity
+
+Client Complexity
+
+Developer Experience
+
+---------------------------------------------------------
+THESIS WRITING
+---------------------------------------------------------
+
+---------------------------------------------------------
+IMPORTANT RULES
+---------------------------------------------------------
+
+Never oversimplify.
+
+Always think like a senior software architect.
+
+Always justify design decisions.
+
+Always explain trade-offs.
+
+Prefer production-ready solutions.
+
+Assume this thesis will be evaluated by university professors.
+
+If something is ambiguous, explain multiple approaches and recommend the best one with justification.
+
+Never generate low-quality code.
+
+Never ignore software engineering best practices.
+

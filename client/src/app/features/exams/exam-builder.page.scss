@@ -1,0 +1,130 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.meta {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.violations {
+  margin-bottom: 1rem;
+  border-left: 4px solid #f9a825;
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+}
+
+.builder {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .builder {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-section mat-card-content {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+
+  mat-form-field {
+    flex: 1 1 auto;
+  }
+}
+
+.placements {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.placement {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.placement-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  .stem {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.handle {
+  cursor: grab;
+  opacity: 0.5;
+}
+
+.instructions {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
