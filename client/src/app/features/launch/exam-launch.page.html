@@ -1,0 +1,294 @@
+<header class="page-header">
+  <div>
+    <h1>Launch an exam</h1>
+    <p class="subtitle">
+      Sits a published exam the way a candidate would, then marks it against the exam's own passing
+      score. Nothing is saved: the attempt ends when you leave the page.
+    </p>
+  </div>
+
+  @if (launchedExamId()) {
+    <div class="header-actions">
+      <button matButton="outlined" type="button" (click)="restart()" data-testid="restart">
+        <mat-icon>refresh</mat-icon>
+        Start again
+      </button>
+      <button matButton type="button" (click)="exit()" data-testid="exit">Choose another exam</button>
+    </div>
+  }
+</header>
+
+<app-load-state
+  [loading]="published.isLoading() || attempt.isLoading()"
+  [error]="failure()"
+  (retry)="restart()"
+/>
+
+@if (!launchedExamId()) {
+  <mat-card class="picker">
+    <mat-card-header>
+      <mat-card-title>Pick an exam</mat-card-title>
+      <mat-card-subtitle>Only published exams can be sat.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Published exam</mat-label>
+        <mat-select
+          data-testid="launch-exam"
+          [ngModel]="chosenExamId()"
+          (ngModelChange)="chosenExamId.set($event)"
+        >
+          @for (exam of publishedExams(); track exam.id) {
+            <mat-option [value]="exam.id">
+              {{ exam.title }} — {{ exam.itemCount }} items, pass at
+              {{ exam.passingScorePercentage }}%
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        matButton="filled"
+        type="button"
+        [disabled]="!chosenExamId()"
+        (click)="launch()"
+        data-testid="launch"
+      >
+        <mat-icon>play_arrow</mat-icon>
+        Launch
+      </button>
+    </mat-card-content>
+
+    @if (!published.isLoading() && publishedExams().length === 0) {
+      <mat-card-content>
+        <p class="muted">
+          No exam has been published yet. Publish one from the exam builder and it will appear here.
+        </p>
+      </mat-card-content>
+    }
+  </mat-card>
+}
+
+@if (attempt.value(); as run) {
+  @if (total() === 0) {
+    <mat-card>
+      <mat-card-content>
+        <p class="muted">“{{ run.exam.summary.title }}” has no items placed, so there is nothing to sit.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (!submitted()) {
+    <mat-card class="runner" data-testid="runner">
+      <mat-card-header>
+        <mat-card-title>{{ run.exam.summary.title }}</mat-card-title>
+        <mat-card-subtitle>
+          Question {{ index() + 1 }} of {{ total() }} · {{ answeredCount() }} answered
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-progress-bar
+        mode="determinate"
+        [value]="progress()"
+        [attr.aria-label]="'Question ' + (index() + 1) + ' of ' + total()"
+      />
+
+      @if (current(); as question) {
+        <mat-card-content>
+          <div class="question-meta">
+            <app-status-chip [value]="question.detail.summary.type" />
+            <app-status-chip [value]="question.detail.summary.difficulty" />
+            <span class="meta">{{ question.sectionTitle }} · {{ question.points }} points</span>
+          </div>
+
+          <p class="stem">{{ question.detail.summary.stem }}</p>
+
+          @switch (question.detail.summary.type) {
+            @case ('Essay') {
+              <mat-form-field appearance="outline" class="essay">
+                <mat-label>Your answer</mat-label>
+                <textarea
+                  matInput
+                  rows="8"
+                  data-testid="essay-answer"
+                  [ngModel]="responseFor(question.examItemId).text"
+                  (ngModelChange)="writeEssay(question.examItemId, $event)"
+                ></textarea>
+                @if (question.detail.rubricMinimumWords) {
+                  <mat-hint>
+                    Expected {{ question.detail.rubricMinimumWords }}–{{
+                      question.detail.rubricMaximumWords
+                    }}
+                    words. Essays are marked by the examiner after the paper is submitted.
+                  </mat-hint>
+                }
+              </mat-form-field>
+            }
+
+            @case ('MultipleChoiceMultipleResponse') {
+              <p class="hint">Choose every option that applies.</p>
+              <div class="choices">
+                @for (option of question.detail.options; track option.position) {
+                  <mat-checkbox
+                    [checked]="isChosen(question.examItemId, option.position)"
+                    (change)="toggleOne(question.examItemId, option.position, $event.checked)"
+                    [attr.data-testid]="'choice-' + option.position"
+                  >
+                    {{ option.text }}
+                  </mat-checkbox>
+                }
+              </div>
+            }
+
+            @default {
+              <mat-radio-group
+                class="choices"
+                [attr.aria-label]="question.detail.summary.stem"
+                [ngModel]="chosenOne(question.examItemId)"
+                (ngModelChange)="chooseOne(question.examItemId, $event)"
+              >
+                @for (option of question.detail.options; track option.position) {
+                  <mat-radio-button
+                    [value]="option.position"
+                    [attr.data-testid]="'choice-' + option.position"
+                  >
+                    {{ option.text }}
+                  </mat-radio-button>
+                }
+              </mat-radio-group>
+            }
+          }
+        </mat-card-content>
+      }
+
+      <mat-card-actions class="runner-actions">
+        <button
+          matButton="outlined"
+          type="button"
+          [disabled]="index() === 0"
+          (click)="previous()"
+          data-testid="previous"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          Previous
+        </button>
+
+        @if (index() + 1 < total()) {
+          <button matButton="filled" type="button" (click)="next()" data-testid="next">
+            Next
+            <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+          </button>
+        } @else {
+          <button matButton="filled" type="button" (click)="next()" data-testid="next">
+            Finish and mark
+            <mat-icon iconPositionEnd>done_all</mat-icon>
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>
+  } @else {
+    @if (outcome(); as result) {
+      <mat-card class="result" [class.passed]="result.passed" data-testid="result">
+        <mat-card-content>
+          <div class="verdict">
+            <mat-icon aria-hidden="true">{{ result.passed ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div>
+              <h2 data-testid="verdict">{{ result.passed ? 'Pass' : 'Fail' }}</h2>
+              <p class="meta">
+                {{ result.awarded }} of {{ result.possible }} points · {{ result.percentage }}% ·
+                pass mark {{ run.exam.summary.passingScorePercentage }}%
+              </p>
+            </div>
+          </div>
+
+          @if (result.manualCount > 0) {
+            <p class="hint">
+              {{ result.manualCount }} essay answer(s) cannot be marked from the key. Award their
+              points below and the result updates.
+            </p>
+          }
+
+          <div class="header-actions">
+            <button matButton="outlined" type="button" (click)="reopen()" data-testid="reopen">
+              Back to the paper
+            </button>
+            <button matButton="filled" type="button" (click)="restart()">Start again</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      @for (question of questions(); track question.examItemId; let position = $index) {
+        <mat-card class="review">
+          <mat-card-header>
+            <mat-card-title>Question {{ position + 1 }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ question.sectionTitle }} · {{ result.questions[position].awarded }} of
+              {{ question.points }} points
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <p class="stem">{{ question.detail.summary.stem }}</p>
+
+            @if (question.detail.summary.type === 'Essay') {
+              <h3>Your answer</h3>
+              <p class="given">{{ givenAnswer(question) || 'Left blank.' }}</p>
+
+              @if (question.detail.rubricGuidance) {
+                <h3>Marking rubric</h3>
+                <p>{{ question.detail.rubricGuidance }}</p>
+              }
+
+              @if (question.detail.sampleAnswer) {
+                <h3>Model answer</h3>
+                <p>{{ question.detail.sampleAnswer }}</p>
+              }
+
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="award">
+                <mat-label>Award points (0–{{ question.points }})</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  min="0"
+                  [max]="question.points"
+                  [attr.data-testid]="'award-' + question.examItemId"
+                  [ngModel]="awardFor(question.examItemId)"
+                  (ngModelChange)="award(question.examItemId, question.points, $event)"
+                />
+              </mat-form-field>
+            } @else {
+              <p class="verdict-line" [class.correct]="result.questions[position].correct">
+                <mat-icon aria-hidden="true">
+                  {{ result.questions[position].correct ? 'check' : 'close' }}
+                </mat-icon>
+                {{ result.questions[position].correct ? 'Correct' : 'Incorrect' }}
+              </p>
+
+              <ol class="options">
+                @for (option of question.detail.options; track option.position) {
+                  <li
+                    [class.correct]="option.isCorrect"
+                    [class.chosen]="isChosen(question.examItemId, option.position)"
+                  >
+                    <span class="marker" aria-hidden="true">{{ option.isCorrect ? '●' : '○' }}</span>
+                    <span>
+                      {{ option.text }}
+                      @if (option.isCorrect) {
+                        <span class="visually-hidden">(correct answer)</span>
+                      }
+                      @if (isChosen(question.examItemId, option.position)) {
+                        <span class="tag">your answer</span>
+                      }
+                      @if (option.feedback) {
+                        <small class="feedback">{{ option.feedback }}</small>
+                      }
+                    </span>
+                  </li>
+                }
+              </ol>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+  }
+}

@@ -43,6 +43,7 @@ import { TransportSelector } from '../shared/components/transport-selector/trans
         }
         @if (canReadExams()) {
           <a matButton routerLink="/exams" routerLinkActive="active-link">Exams</a>
+          <a matButton routerLink="/launch" routerLinkActive="active-link">Launch</a>
         }
         @if (canAdminister()) {
           <a matButton routerLink="/administration" routerLinkActive="active-link">Administration</a>

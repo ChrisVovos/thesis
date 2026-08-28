@@ -1,0 +1,169 @@
+.picker mat-card-content {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 1 1 20rem;
+  }
+}
+
+.runner,
+.result,
+.review {
+  margin-bottom: 1rem;
+}
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.stem {
+  margin: 0 0 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.hint {
+  margin: 0 0 0.75rem;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.essay {
+  width: 100%;
+}
+
+.runner-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+
+  mat-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+/* The result card states the verdict in words and in an icon, so colour is only reinforcement. */
+.result {
+  border-left: 4px solid var(--app-danger-fg);
+
+  .verdict mat-icon {
+    color: var(--app-danger-fg);
+  }
+
+  &.passed {
+    border-left-color: var(--app-success-fg);
+
+    .verdict mat-icon {
+      color: var(--app-success-fg);
+    }
+  }
+}
+
+.verdict-line {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0 0 0.75rem;
+  font-weight: 500;
+  color: var(--app-danger-fg);
+
+  &.correct {
+    color: var(--app-success-fg);
+  }
+}
+
+.given {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+  white-space: pre-wrap;
+}
+
+.review h3 {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-muted);
+}
+
+.options {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  li {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+  }
+
+  .correct {
+    border-color: var(--app-success-fg);
+    background: var(--app-success-bg);
+  }
+
+  .chosen {
+    box-shadow: inset 3px 0 0 var(--mat-sys-primary);
+  }
+
+  .marker {
+    line-height: 1.4;
+  }
+
+  .tag {
+    margin-left: 0.5rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: var(--app-tint-strong);
+    color: var(--app-tint-fg);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .feedback {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--app-text-muted);
+  }
+}
+
+.award {
+  margin-top: 0.75rem;
+  max-width: 14rem;
+}

@@ -33,6 +33,13 @@ export const routes: Routes = [
         loadChildren: () => import('./features/exams/exams.routes').then((m) => m.examRoutes),
       },
       {
+        path: 'launch',
+        canMatch: [requirePermission(Permissions.ExamsRead)],
+        loadComponent: () =>
+          import('./features/launch/exam-launch.page').then((m) => m.ExamLaunchPage),
+        title: 'Launch an exam',
+      },
+      {
         path: 'administration',
         canMatch: [requirePermission(Permissions.UsersRead, Permissions.RolesManage)],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes),
