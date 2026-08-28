@@ -28,6 +28,10 @@ import { TransportSelector } from '../../shared/components/transport-selector/tr
   template: `
     <div class="sign-in">
       <mat-card>
+        <div class="avatar" aria-hidden="true">
+          <mat-icon>person</mat-icon>
+        </div>
+
         <mat-card-header>
           <mat-card-title>Item Authoring</mat-card-title>
           <mat-card-subtitle>Sign in to continue</mat-card-subtitle>
@@ -41,6 +45,7 @@ import { TransportSelector } from '../../shared/components/transport-selector/tr
           <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
             <mat-form-field appearance="outline">
               <mat-label>E-mail address</mat-label>
+              <mat-icon matPrefix>mail</mat-icon>
               <input
                 matInput
                 type="email"
@@ -57,6 +62,7 @@ import { TransportSelector } from '../../shared/components/transport-selector/tr
 
             <mat-form-field appearance="outline">
               <mat-label>Password</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
               <input
                 matInput
                 [type]="revealed() ? 'text' : 'password'"
@@ -85,6 +91,7 @@ import { TransportSelector } from '../../shared/components/transport-selector/tr
             <button
               matButton="filled"
               type="submit"
+              class="submit"
               data-testid="sign-in"
               [disabled]="auth.busy()"
             >
@@ -106,11 +113,54 @@ import { TransportSelector } from '../../shared/components/transport-selector/tr
       justify-content: center;
       min-height: 100vh;
       padding: 1rem;
-      background: #f5f5f7;
+      background: var(--app-shell-bg);
     }
 
-    mat-card { width: min(28rem, 100%); }
-    form { display: flex; flex-direction: column; gap: 0.75rem; padding-top: 1rem; }
+    mat-card {
+      width: min(28rem, 100%);
+      box-shadow: 0 24px 48px rgba(2, 6, 23, 0.45);
+      padding-block: 1.5rem 0.5rem;
+      text-align: center;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      border: 2px solid var(--mat-sys-primary, #1565c0);
+      color: var(--mat-sys-primary, #1565c0);
+      background: #e8f0fe;
+
+      mat-icon { font-size: 40px; width: 40px; height: 40px; }
+    }
+
+    mat-card-header { display: block; }
+    mat-card-title { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.01em; }
+    mat-card-subtitle { color: var(--app-text-muted); }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding-top: 1.25rem;
+      text-align: start;
+    }
+
+    mat-form-field mat-icon[matPrefix] {
+      margin-inline: 0.75rem 0.5rem;
+      color: var(--app-text-muted);
+    }
+
+    .submit {
+      margin-top: 0.5rem;
+      height: 44px;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
     .failure { color: var(--mat-sys-error, #b3261e); margin: 0; }
     .transport-slot { display: flex; justify-content: flex-end; padding: 0 1rem 1rem; }
   `,

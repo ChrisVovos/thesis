@@ -119,11 +119,18 @@ import { API_TRANSPORTS } from '../../core/transport/api-transport';
     }
   `,
   styles: `
-    .page-header { margin-bottom: 1rem; h1 { margin: 0; font-size: 1.5rem; } }
-    .subtitle { margin: 0.25rem 0 0; color: rgba(0, 0, 0, 0.6); max-width: 70ch; }
-    .controls mat-card-content { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-    .results { margin-top: 1rem; overflow-x: auto; }
-    table { width: 100%; }
+    .controls {
+      margin-bottom: 1rem;
+
+      mat-card-content { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    }
+
+    code {
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      background: var(--app-surface-muted);
+      font-size: 0.875em;
+    }
   `,
 })
 export class BenchmarkPage {

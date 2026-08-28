@@ -89,20 +89,75 @@ import { TransportSelector } from '../shared/components/transport-selector/trans
       position: sticky;
       top: 0;
       z-index: 10;
+      height: 64px;
+      padding-inline: 1.5rem;
+      background: var(--app-shell-bg);
+      color: #fff;
+      box-shadow: 0 1px 12px rgba(15, 23, 42, 0.25);
     }
 
-    .brand { font-weight: 600; margin-right: 1.5rem; }
-    .shell-nav { display: flex; gap: 0.25rem; }
-    .active-link { font-weight: 700; text-decoration: underline; }
+    .brand {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-right: 2rem;
+      color: #fff;
+    }
+
+    .shell-nav {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .shell-nav a {
+      border-radius: 999px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .shell-nav a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .shell-nav a.active-link {
+      color: #fff;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .shell-toolbar button {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* The selector sits on the dark bar, so its Material colours are re-pointed at light ones. */
+    .shell-toolbar app-transport-selector {
+      --mdc-outlined-text-field-outline-color: rgba(255, 255, 255, 0.35);
+      --mdc-outlined-text-field-hover-outline-color: rgba(255, 255, 255, 0.6);
+      --mdc-outlined-text-field-focus-outline-color: #fff;
+      --mdc-outlined-text-field-input-text-color: #fff;
+      --mat-form-field-outlined-label-text-color: rgba(255, 255, 255, 0.75);
+      --mat-form-field-outlined-hover-label-text-color: #fff;
+      --mat-form-field-outlined-focus-label-text-color: #fff;
+      --mat-select-enabled-trigger-text-color: #fff;
+      --mat-select-enabled-arrow-color: rgba(255, 255, 255, 0.75);
+      --mat-select-focused-arrow-color: #fff;
+    }
+
     .spacer { flex: 1 1 auto; }
-    .progress-slot { height: 4px; }
-    .shell-content { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+
+    /* Reserved for the busy bar; tinted so the toolbar and the page band stay one dark region. */
+    .progress-slot { height: 4px; background: #1e293b; }
+
+    .shell-content { padding: 0 1.5rem 2rem; max-width: 1400px; margin: 0 auto; }
 
     .user-summary {
       display: flex;
       flex-direction: column;
       padding: 0.75rem 1rem;
       gap: 0.15rem;
+
+      small { color: var(--app-text-muted); }
     }
   `,
 })

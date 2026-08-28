@@ -1,46 +1,9 @@
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-
-  .subtitle {
-    margin: 0.25rem 0 0;
-    color: rgba(0, 0, 0, 0.6);
-  }
-}
-
-.filters mat-card-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-
-  mat-form-field {
-    min-width: 12rem;
-    flex: 1 1 12rem;
-  }
-}
-
-.results {
-  margin-top: 1rem;
-  overflow-x: auto;
-}
-
 .stem-link {
-  color: inherit;
+  color: var(--mat-sys-primary);
+  font-weight: 500;
   text-decoration: none;
 
   &:hover {
     text-decoration: underline;
   }
-}
-
-table {
-  width: 100%;
 }

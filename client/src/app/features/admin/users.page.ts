@@ -227,27 +227,18 @@ import type { User, UserQuery } from '../../shared/models/user.models';
     </mat-tab-nav-panel>
   `,
   styles: `
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      margin: 1rem 0;
-      h1 { margin: 0; font-size: 1.5rem; }
+    .create {
+      margin-bottom: 1rem;
+
+      mat-card-content {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      mat-form-field { min-width: 14rem; }
     }
-    .subtitle { margin: 0.25rem 0 0; color: rgba(0, 0, 0, 0.6); }
-    .filters mat-card-content { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .filters mat-form-field { min-width: 14rem; }
-    .create { margin-bottom: 1rem; }
-    .create mat-card-content {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .create mat-form-field { min-width: 14rem; }
-    .results { margin-top: 1rem; overflow-x: auto; }
-    table { width: 100%; }
   `,
 })
 export class UsersPage {

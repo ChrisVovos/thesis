@@ -31,11 +31,13 @@ import { LoadState } from '../../shared/components/load-state/load-state';
     </nav>
     <mat-tab-nav-panel #panel>
       <header class="page-header">
-        <h1>Roles</h1>
-        <p class="subtitle">
-          A role is a bundle of permissions. Use cases name the permission they need, never the role,
-          so re-bundling here takes effect without a redeployment.
-        </p>
+        <div>
+          <h1>Roles</h1>
+          <p class="subtitle">
+            A role is a bundle of permissions. Use cases name the permission they need, never the
+            role, so re-bundling here takes effect without a redeployment.
+          </p>
+        </div>
       </header>
 
       <app-load-state
@@ -79,14 +81,10 @@ import { LoadState } from '../../shared/components/load-state/load-state';
     </mat-tab-nav-panel>
   `,
   styles: `
-    .page-header { margin: 1rem 0; h1 { margin: 0; font-size: 1.5rem; } }
-    .subtitle { margin: 0.25rem 0 0; color: rgba(0, 0, 0, 0.6); max-width: 60ch; }
-
     .role-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
       gap: 1rem;
-      margin-top: 1rem;
     }
 
     .system-badge { font-size: 1rem; height: 1rem; width: 1rem; vertical-align: middle; }

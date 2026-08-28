@@ -145,21 +145,7 @@ import { NewExamDialog } from './new-exam.dialog';
     }
   `,
   styles: `
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      margin-bottom: 1rem;
-
-      h1 { margin: 0; font-size: 1.5rem; }
-      .subtitle { margin: 0.25rem 0 0; color: rgba(0, 0, 0, 0.6); }
-    }
-
-    .filters mat-card-content { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .filters mat-form-field { min-width: 14rem; }
-    .results { margin-top: 1rem; overflow-x: auto; }
-    table { width: 100%; }
+    .composition { color: var(--app-text-muted); }
   `,
 })
 export class ExamListPage {

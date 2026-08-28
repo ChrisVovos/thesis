@@ -19,7 +19,7 @@ import { ItemsGateway } from '../../data-access/gateways/items.gateway';
 import { LoadState } from '../../shared/components/load-state/load-state';
 import { StatusChip } from '../../shared/components/status-chip/status-chip';
 import { Permissions } from '../../shared/models/auth.models';
-import type { ExamItem, ExamTransition } from '../../shared/models/exam.models';
+import type { ExamItem, ExamSection, ExamTransition } from '../../shared/models/exam.models';
 import { describeCompositionViolation } from './composition-messages';
 
 /**
@@ -106,7 +106,7 @@ export class ExamBuilderPage {
    * Resolved against the loaded exam rather than trusted, so a section removed while it was selected
    * falls back to the first one instead of leaving the picker pointing at nothing.
    */
-  protected readonly targetSection = computed(() => {
+  protected readonly targetSection = computed<ExamSection | null>(() => {
     const sections = this.exam.value()?.sections ?? [];
     return sections.find((section) => section.id === this.chosenSectionId()) ?? sections[0] ?? null;
   });

@@ -123,16 +123,6 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
     }
   `,
   styles: `
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      margin-bottom: 1rem;
-
-      h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
-    }
-
     .chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
     .options { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-direction: column; gap: 0.5rem; }
     .options li { display: grid; grid-template-columns: 1.5rem 1fr; gap: 0.25rem 0.5rem; }
@@ -142,15 +132,6 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
     .rubric h2 { font-size: 1rem; }
     .word-range { opacity: 0.7; }
     .versions { margin-top: 1rem; }
-    .muted { opacity: 0.7; }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-    }
   `,
 })
 export class ItemPreviewPage {
