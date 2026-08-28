@@ -67,25 +67,30 @@ internal sealed class RefreshTokenCommandHandler(
                 "The refresh token is not valid."));
         }
 
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        return await unitOfWork.ExecuteInTransactionAsync(
+            async token =>
+            {
+                var now = clock.UtcNow;
+                var replacement = tokens.CreateRefreshToken();
+                user.RotateRefreshToken(presentedHash, replacement.Hash, now, replacement.ExpiresAtUtc);
+                user.PruneRefreshTokens(now);
 
-        var now = clock.UtcNow;
-        var replacement = tokens.CreateRefreshToken();
-        user.RotateRefreshToken(presentedHash, replacement.Hash, now, replacement.ExpiresAtUtc);
-        user.PruneRefreshTokens(now);
+                var authorization = await users.GetAuthorizationDataAsync(user.Id, token);
+                var accessToken = tokens.CreateAccessToken(
+                    user,
+                    authorization.Roles,
+                    authorization.Permissions);
 
-        var authorization = await users.GetAuthorizationDataAsync(user.Id, cancellationToken);
-        var accessToken = tokens.CreateAccessToken(user, authorization.Roles, authorization.Permissions);
+                await unitOfWork.SaveChangesAsync(token);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-
-        return Result.Success(AuthenticationResultFactory.Create(
-            user,
-            authorization.Roles,
-            authorization.Permissions,
-            accessToken,
-            replacement));
+                return Result.Success(AuthenticationResultFactory.Create(
+                    user,
+                    authorization.Roles,
+                    authorization.Permissions,
+                    accessToken,
+                    replacement));
+            },
+            cancellationToken);
     }
 }
 

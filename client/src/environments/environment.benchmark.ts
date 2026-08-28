@@ -1,4 +1,4 @@
-import type { Environment } from './environment';
+import type { Environment } from './environment.model';
 
 /**
  * The build used for the comparative measurements: production-like, but with the transport selector

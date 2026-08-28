@@ -7,6 +7,7 @@ using ItemAuthoring.Infrastructure.Events;
 using ItemAuthoring.Infrastructure.Identity;
 using ItemAuthoring.Infrastructure.Persistence;
 using ItemAuthoring.Infrastructure.Persistence.Interceptors;
+using ItemAuthoring.Infrastructure.Persistence.Query;
 using ItemAuthoring.Infrastructure.Persistence.ReadStores;
 using ItemAuthoring.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,7 @@ public static class InfrastructureServiceCollectionExtensions
             .UseSqlServer(connectionString, sqlServer => sqlServer
                 .EnableRetryOnFailure(maxRetryCount: 3, TimeSpan.FromSeconds(5), null)
                 .MigrationsHistoryTable("__EFMigrationsHistory", "authoring"))
+            .UseValueObjectMemberTranslation()
             .AddInterceptors(
                 provider.GetRequiredService<AuditableEntityInterceptor>(),
                 provider.GetRequiredService<CommandCountingInterceptor>()));

@@ -27,7 +27,7 @@ public sealed record ReturnExamToDraftCommand(Guid ExamId) : ICommand<Result>;
 /// <summary>Handles <see cref="PublishExamCommand"/>.</summary>
 /// <remarks>
 /// This is one of the two use cases that genuinely spans aggregates, and therefore one of the two
-/// that opens an explicit transaction. Publication must observe a consistent snapshot of every
+/// that runs inside an explicit transaction. Publication must observe a consistent snapshot of every
 /// referenced item: without the transaction, an item could be retired between the moment its status
 /// is verified and the moment the exam is frozen, producing a published exam that references
 /// withdrawn content.
@@ -46,38 +46,36 @@ internal sealed class PublishExamCommandHandler(
     : IRequestHandler<PublishExamCommand, Result>
 {
     /// <inheritdoc />
-    public async Task<Result> HandleAsync(PublishExamCommand request, CancellationToken cancellationToken)
-    {
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+    public Task<Result> HandleAsync(PublishExamCommand request, CancellationToken cancellationToken)
+        => unitOfWork.ExecuteInTransactionAsync(
+            async token =>
+            {
+                var exam = await exams.GetAsync(new ExamId(request.ExamId), token);
+                var guard = ExamOwnershipPolicy.Authorize(exam, currentUser);
+                if (guard.IsFailure)
+                {
+                    return guard;
+                }
 
-        var exam = await exams.GetAsync(new ExamId(request.ExamId), cancellationToken);
-        var guard = ExamOwnershipPolicy.Authorize(exam, currentUser);
-        if (guard.IsFailure)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            return guard;
-        }
+                var referenced = exam!.Sections
+                    .SelectMany(section => section.Items)
+                    .Select(placement => placement.ItemId)
+                    .Distinct()
+                    .ToList();
 
-        var referenced = exam!.Sections
-            .SelectMany(section => section.Items)
-            .Select(placement => placement.ItemId)
-            .Distinct()
-            .ToList();
+                var scores = await items.GetMaximumScoresAsync(referenced, token);
+                if (scores.Count != referenced.Count)
+                {
+                    return Result.Failure(Error.Conflict(
+                        "exam.item_missing",
+                        "The exam references an item that no longer exists."));
+                }
 
-        var scores = await items.GetMaximumScoresAsync(referenced, cancellationToken);
-        if (scores.Count != referenced.Count)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            return Result.Failure(Error.Conflict(
-                "exam.item_missing",
-                "The exam references an item that no longer exists."));
-        }
-
-        exam.Publish(clock.UtcNow);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        return Result.Success();
-    }
+                exam.Publish(clock.UtcNow);
+                await unitOfWork.SaveChangesAsync(token);
+                return Result.Success();
+            },
+            cancellationToken);
 }
 
 /// <summary>Handles <see cref="ArchiveExamCommand"/>.</summary>

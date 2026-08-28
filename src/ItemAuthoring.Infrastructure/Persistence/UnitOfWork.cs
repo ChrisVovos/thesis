@@ -35,16 +35,27 @@ internal sealed class UnitOfWork(ApplicationDbContext context, IDomainEventDispa
     }
 
     /// <inheritdoc />
-    public async Task<ITransactionScope> BeginTransactionAsync(
+    public Task<TResult> ExecuteInTransactionAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> operation,
         CancellationToken cancellationToken = default)
     {
-        if (context.Database.CurrentTransaction is { } existing)
+        ArgumentNullException.ThrowIfNull(operation);
+
+        // A caller further up the stack already owns the transaction and its outcome.
+        if (context.Database.CurrentTransaction is not null)
         {
-            return new AmbientTransactionScope(existing);
+            return operation(cancellationToken);
         }
 
-        var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-        return new EntityFrameworkTransactionScope(transaction);
+        return context.Database.CreateExecutionStrategy().ExecuteAsync(
+            async token =>
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync(token);
+                var result = await operation(token);
+                await transaction.CommitAsync(token);
+                return result;
+            },
+            cancellationToken);
     }
 
     private List<IDomainEvent> CollectDomainEvents()
@@ -58,34 +69,5 @@ internal sealed class UnitOfWork(ApplicationDbContext context, IDomainEventDispa
         var events = aggregates.SelectMany(aggregate => aggregate.DomainEvents).ToList();
         aggregates.ForEach(aggregate => aggregate.ClearDomainEvents());
         return events;
-    }
-
-    private sealed class EntityFrameworkTransactionScope(IDbContextTransaction transaction)
-        : ITransactionScope
-    {
-        public Task CommitAsync(CancellationToken cancellationToken = default)
-            => transaction.CommitAsync(cancellationToken);
-
-        public Task RollbackAsync(CancellationToken cancellationToken = default)
-            => transaction.RollbackAsync(cancellationToken);
-
-        public ValueTask DisposeAsync() => transaction.DisposeAsync();
-    }
-
-    /// <summary>
-    /// Joins a transaction that a caller further up the stack already owns.
-    /// </summary>
-    /// <remarks>
-    /// Nested calls must not commit or roll back a transaction they did not start; the outermost
-    /// scope remains responsible for the outcome.
-    /// </remarks>
-    private sealed class AmbientTransactionScope(IDbContextTransaction transaction) : ITransactionScope
-    {
-        public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-        public Task RollbackAsync(CancellationToken cancellationToken = default)
-            => transaction.RollbackAsync(cancellationToken);
-
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 }

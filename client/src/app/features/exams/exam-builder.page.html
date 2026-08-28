@@ -79,9 +79,24 @@
       }
 
       @for (section of detail.sections; track section.id) {
-        <mat-card class="section">
+        <mat-card class="section" [class.selected]="targetSection()?.id === section.id">
           <mat-card-header>
-            <mat-card-title>{{ section.title }}</mat-card-title>
+            <mat-card-title>
+              @if (canEdit() && isDraft()) {
+                <button
+                  type="button"
+                  class="section-select"
+                  [attr.aria-pressed]="targetSection()?.id === section.id"
+                  [attr.aria-label]="'Place items into ' + section.title"
+                  [attr.data-testid]="'select-section-' + section.id"
+                  (click)="selectSection(section.id)"
+                >
+                  {{ section.title }}
+                </button>
+              } @else {
+                {{ section.title }}
+              }
+            </mat-card-title>
             <mat-card-subtitle>{{ section.items.length }} items</mat-card-subtitle>
             @if (canEdit() && isDraft()) {
               <button
@@ -144,7 +159,13 @@
         <mat-card>
           <mat-card-header>
             <mat-card-title>Published items</mat-card-title>
-            <mat-card-subtitle>Only published items may be placed.</mat-card-subtitle>
+            <mat-card-subtitle>
+              @if (targetSection(); as target) {
+                Placing into “{{ target.title }}”. Click another section title to change it.
+              } @else {
+                Add a section before placing items.
+              }
+            </mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content>
@@ -168,13 +189,13 @@
                     {{ candidate.categoryName }} · {{ candidate.maximumScore }} points
                   </span>
                   <span matListItemMeta>
-                    @if (detail.sections.length > 0) {
+                    @if (targetSection(); as target) {
                       <button
                         matIconButton
                         type="button"
-                        [attr.aria-label]="'Add ' + candidate.stem + ' to the first section'"
+                        [attr.aria-label]="'Add ' + candidate.stem + ' to ' + target.title"
                         [attr.data-testid]="'add-item-' + candidate.id"
-                        (click)="addItem(detail.sections[0].id, candidate.id)"
+                        (click)="addItem(candidate.id)"
                       >
                         <mat-icon>add</mat-icon>
                       </button>

@@ -73,6 +73,28 @@
   }
 }
 
+.section {
+  border: 2px solid transparent;
+
+  &.selected {
+    border-color: #1565c0;
+  }
+}
+
+.section-select {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  &[aria-pressed='true'] {
+    color: #1565c0;
+  }
+}
+
 .placements {
   display: flex;
   flex-direction: column;

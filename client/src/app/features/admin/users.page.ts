@@ -54,7 +54,85 @@ import type { User, UserQuery } from '../../shared/models/user.models';
           <h1>Users</h1>
           <p class="subtitle">{{ totalCount() }} accounts.</p>
         </div>
+
+        @if (canManage()) {
+          <button
+            matButton="filled"
+            type="button"
+            data-testid="new-user"
+            [attr.aria-expanded]="showCreate()"
+            (click)="toggleCreate()"
+          >
+            <mat-icon>{{ showCreate() ? 'close' : 'add' }}</mat-icon>
+            {{ showCreate() ? 'Cancel' : 'New user' }}
+          </button>
+        }
       </header>
+
+      @if (canManage() && showCreate()) {
+        <mat-card class="create">
+          <mat-card-content>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Display name</mat-label>
+              <input
+                matInput
+                data-testid="new-user-name"
+                [ngModel]="draftName()"
+                (ngModelChange)="draftName.set($event)"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>E-mail address</mat-label>
+              <input
+                matInput
+                type="email"
+                autocomplete="off"
+                data-testid="new-user-email"
+                [ngModel]="draftEmail()"
+                (ngModelChange)="draftEmail.set($event)"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Password</mat-label>
+              <input
+                matInput
+                type="password"
+                autocomplete="new-password"
+                data-testid="new-user-password"
+                [ngModel]="draftPassword()"
+                (ngModelChange)="draftPassword.set($event)"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Roles</mat-label>
+              <mat-select
+                multiple
+                required
+                data-testid="new-user-roles"
+                [ngModel]="draftRoleIds()"
+                (ngModelChange)="draftRoleIds.set($event)"
+              >
+                @for (role of roles.value() ?? []; track role.id) {
+                  <mat-option [value]="role.id">{{ role.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <button
+              matButton="filled"
+              type="button"
+              data-testid="create-user"
+              [disabled]="!canSubmit()"
+              (click)="createUser()"
+            >
+              Create account
+            </button>
+          </mat-card-content>
+        </mat-card>
+      }
 
       <mat-card class="filters">
         <mat-card-content>
@@ -149,10 +227,25 @@ import type { User, UserQuery } from '../../shared/models/user.models';
     </mat-tab-nav-panel>
   `,
   styles: `
-    .page-header { margin: 1rem 0; h1 { margin: 0; font-size: 1.5rem; } }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin: 1rem 0;
+      h1 { margin: 0; font-size: 1.5rem; }
+    }
     .subtitle { margin: 0.25rem 0 0; color: rgba(0, 0, 0, 0.6); }
     .filters mat-card-content { display: flex; gap: 0.75rem; flex-wrap: wrap; }
     .filters mat-form-field { min-width: 14rem; }
+    .create { margin-bottom: 1rem; }
+    .create mat-card-content {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .create mat-form-field { min-width: 14rem; }
     .results { margin-top: 1rem; overflow-x: auto; }
     table { width: 100%; }
   `,
@@ -170,6 +263,25 @@ export class UsersPage {
 
   /** Whether the signed-in user may change accounts. */
   protected readonly canManage = computed(() => this.auth.has(Permissions.UsersManage));
+
+  /** Whether the new account form is open. */
+  protected readonly showCreate = signal(false);
+
+  protected readonly draftName = signal('');
+  protected readonly draftEmail = signal('');
+  protected readonly draftPassword = signal('');
+  protected readonly draftRoleIds = signal<readonly string[]>([]);
+  private readonly creating = signal(false);
+
+  /** Whether the draft account is complete enough to submit. */
+  protected readonly canSubmit = computed(
+    () =>
+      !this.creating() &&
+      this.draftName().trim().length > 0 &&
+      this.draftEmail().trim().length > 0 &&
+      this.draftPassword().length > 0 &&
+      this.draftRoleIds().length > 0,
+  );
 
   /** The current page of the directory; re-runs when the transport changes. */
   protected readonly page = rxResource({
@@ -193,6 +305,51 @@ export class UsersPage {
   /** Renders the roles of a user as a sentence. */
   protected roleNames(user: User): string {
     return user.roles.map((role) => role.name).join(', ');
+  }
+
+  /** Opens or abandons the new account form. */
+  protected toggleCreate(): void {
+    const open = !this.showCreate();
+    this.showCreate.set(open);
+    if (!open) {
+      this.resetDraft();
+    }
+  }
+
+  /** Creates the drafted account over whichever transport is active. */
+  protected async createUser(): Promise<void> {
+    if (!this.canSubmit()) {
+      return;
+    }
+
+    this.creating.set(true);
+    try {
+      await firstValueFrom(
+        this.users.create({
+          email: this.draftEmail().trim(),
+          displayName: this.draftName().trim(),
+          password: this.draftPassword(),
+          roleIds: this.draftRoleIds(),
+        }),
+      );
+
+      this.notifications.success('The account was created.');
+      this.resetDraft();
+      this.showCreate.set(false);
+      this.page.reload();
+    } catch (error: unknown) {
+      this.notifications.failure(
+        isAppError(error)
+          ? error
+          : {
+              code: 'client.unexpected',
+              message: 'The account could not be created.',
+              kind: 'failure',
+            },
+      );
+    } finally {
+      this.creating.set(false);
+    }
   }
 
   /** Applies a new free-text search term. */
@@ -233,5 +390,12 @@ export class UsersPage {
       );
       this.page.reload();
     }
+  }
+
+  private resetDraft(): void {
+    this.draftName.set('');
+    this.draftEmail.set('');
+    this.draftPassword.set('');
+    this.draftRoleIds.set([]);
   }
 }

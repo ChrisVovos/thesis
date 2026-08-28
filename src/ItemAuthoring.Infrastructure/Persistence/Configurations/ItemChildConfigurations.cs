@@ -51,7 +51,10 @@ internal sealed class ItemVersionConfiguration : IEntityTypeConfiguration<ItemVe
             option.WithOwner().HasForeignKey("ItemVersionId");
             option.Property(value => value.Text).HasMaxLength(OptionText.MaxLength).IsRequired();
             option.Property(value => value.Feedback).HasMaxLength(ItemOption.MaxFeedbackLength);
-            option.Property(value => value.Position).IsRequired();
+            // Position is the ordinal the author gave the option, not a surrogate: the owned
+            // collection convention would otherwise make it store generated and the second option of
+            // a version would be saved as an update of a row that does not exist.
+            option.Property(value => value.Position).ValueGeneratedNever().IsRequired();
             option.Property(value => value.IsCorrect).IsRequired();
             option.HasKey("ItemVersionId", "Position");
         });

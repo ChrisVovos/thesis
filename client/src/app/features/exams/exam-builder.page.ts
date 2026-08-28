@@ -61,6 +61,9 @@ export class ExamBuilderPage {
   /** The title of the section about to be added. */
   protected readonly newSectionTitle = signal('');
 
+  /** The section the user picked to place into, before it is checked against the exam. */
+  private readonly chosenSectionId = signal<string | null>(null);
+
   /** Whether the signed-in user may change this exam. */
   protected readonly canEdit = computed(() => this.auth.has(Permissions.ExamsUpdate));
   protected readonly canPublish = computed(() => this.auth.has(Permissions.ExamsPublish));
@@ -97,6 +100,26 @@ export class ExamBuilderPage {
   /** Whether the exam is a draft and therefore still editable. */
   protected readonly isDraft = computed(() => this.exam.value()?.summary.status === 'Draft');
 
+  /**
+   * The section the picker places into.
+   *
+   * Resolved against the loaded exam rather than trusted, so a section removed while it was selected
+   * falls back to the first one instead of leaving the picker pointing at nothing.
+   */
+  protected readonly targetSection = computed(() => {
+    const sections = this.exam.value()?.sections ?? [];
+    return sections.find((section) => section.id === this.chosenSectionId()) ?? sections[0] ?? null;
+  });
+
+  /**
+   * Chooses the section the picker places into.
+   *
+   * @param sectionId The section to place into.
+   */
+  protected selectSection(sectionId: string): void {
+    this.chosenSectionId.set(sectionId);
+  }
+
   /** Appends a section. */
   protected async addSection(): Promise<void> {
     const title = this.newSectionTitle().trim();
@@ -121,15 +144,19 @@ export class ExamBuilderPage {
   }
 
   /**
-   * Places an item at the end of a section.
+   * Places an item at the end of the selected section.
    *
-   * @param sectionId The section to append to.
    * @param itemId The item to place.
    */
-  protected addItem(sectionId: string, itemId: string): Promise<void> {
+  protected addItem(itemId: string): Promise<void> {
+    const section = this.targetSection();
+    if (!section) {
+      return Promise.resolve();
+    }
+
     return this.mutate(
-      () => this.exams.addItem(this.id(), sectionId, itemId),
-      'The item was added to the exam.',
+      () => this.exams.addItem(this.id(), section.id, itemId),
+      `The item was added to ${section.title}.`,
     );
   }
 
