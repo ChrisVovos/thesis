@@ -22,13 +22,18 @@
 
 .builder {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
+
+  /* The second column only exists while the picker is rendered; otherwise it would be dead space. */
+  &.arranging {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 960px) {
-  .builder {
+  .builder.arranging {
     grid-template-columns: 1fr;
   }
 }

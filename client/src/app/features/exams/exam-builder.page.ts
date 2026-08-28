@@ -100,6 +100,9 @@ export class ExamBuilderPage {
   /** Whether the exam is a draft and therefore still editable. */
   protected readonly isDraft = computed(() => this.exam.value()?.summary.status === 'Draft');
 
+  /** Whether the composition may be rearranged, which is what the picker and section selection need. */
+  protected readonly canArrange = computed(() => this.canEdit() && this.isDraft());
+
   /**
    * The section the picker places into.
    *

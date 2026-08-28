@@ -56,9 +56,9 @@
     </mat-card>
   }
 
-  <div class="builder">
+  <div class="builder" [class.arranging]="canArrange()">
     <section class="sections">
-      @if (canEdit() && isDraft()) {
+      @if (canArrange()) {
         <mat-card class="add-section">
           <mat-card-content>
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -79,10 +79,10 @@
       }
 
       @for (section of detail.sections; track section.id) {
-        <mat-card class="section" [class.selected]="targetSection()?.id === section.id">
+        <mat-card class="section" [class.selected]="canArrange() && targetSection()?.id === section.id">
           <mat-card-header>
             <mat-card-title>
-              @if (canEdit() && isDraft()) {
+              @if (canArrange()) {
                 <button
                   type="button"
                   class="section-select"
@@ -98,7 +98,7 @@
               }
             </mat-card-title>
             <mat-card-subtitle>{{ section.items.length }} items</mat-card-subtitle>
-            @if (canEdit() && isDraft()) {
+            @if (canArrange()) {
               <button
                 matIconButton
                 type="button"
@@ -121,7 +121,7 @@
               <div
                 cdkDropList
                 [cdkDropListData]="section.items"
-                [cdkDropListDisabled]="!canEdit() || !isDraft()"
+                [cdkDropListDisabled]="!canArrange()"
                 (cdkDropListDropped)="reorder(section.id, $event)"
                 class="placements"
                 [attr.data-testid]="'section-items-' + section.id"
@@ -135,7 +135,7 @@
                         {{ placement.item?.categoryName }} · {{ placement.effectiveScore }} points
                       </small>
                     </div>
-                    @if (canEdit() && isDraft()) {
+                    @if (canArrange()) {
                       <button
                         matIconButton
                         type="button"
@@ -154,7 +154,7 @@
       }
     </section>
 
-    @if (canEdit() && isDraft()) {
+    @if (canArrange()) {
       <aside class="picker">
         <mat-card>
           <mat-card-header>

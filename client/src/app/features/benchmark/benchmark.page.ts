@@ -124,13 +124,6 @@ import { API_TRANSPORTS } from '../../core/transport/api-transport';
 
       mat-card-content { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
     }
-
-    code {
-      padding: 0.1rem 0.35rem;
-      border-radius: 4px;
-      background: var(--app-surface-muted);
-      font-size: 0.875em;
-    }
   `,
 })
 export class BenchmarkPage {
