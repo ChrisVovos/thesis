@@ -58,8 +58,16 @@ public static class GraphQlResultExtensions
                 ClassificationExtension,
                 ErrorStatusMap.ToGraphQlClassification(error.Type));
 
-        return error.Details is { Count: > 0 }
-            ? builder.SetExtension("errors", error.Details).Build()
+        return error.Details is { Count: > 0 } details
+            ? builder.SetExtension("errors", ToExtensionValue(details)).Build()
             : builder.Build();
     }
+
+    // The result formatter writes dictionaries and lists of object, and falls back to ToString for
+    // anything else, which would put the type name of the dictionary on the wire.
+    private static Dictionary<string, object?> ToExtensionValue(
+        IReadOnlyDictionary<string, string[]> details)
+        => details.ToDictionary(
+            entry => entry.Key,
+            entry => (object?)entry.Value.Select(message => (object?)message).ToList());
 }

@@ -30,8 +30,13 @@ export class NotificationService {
    * @param error The normalized failure.
    */
   failure(error: AppError): void {
+    // A validation failure carries the per-field reasons; the summary message alone would leave the
+    // user guessing which input the server rejected.
+    const reasons = Object.values(error.fieldErrors ?? {}).flat();
+    const detail = reasons.length > 0 ? ` ${reasons.join(' ')}` : '';
     const suffix = error.correlationId ? ` (reference ${error.correlationId})` : '';
-    this.snackBar.open(`${error.message}${suffix}`, 'Dismiss', {
+
+    this.snackBar.open(`${error.message}${detail}${suffix}`, 'Dismiss', {
       duration: 8000,
       panelClass: 'notification-failure',
     });
